@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\ProjectStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
 /**
- *
- *
  * @property int $id
  * @property string $name
  * @property string|null $description
@@ -21,6 +21,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @property-read int|null $tasks_count
+ *
  * @method static \Database\Factories\ProjectFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Project newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Project newQuery()
@@ -35,15 +36,18 @@ use Illuminate\Support\Carbon;
  * @method static \Illuminate\Database\Eloquent\Builder|Project whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Project whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Project whereUpdatedBy($value)
+ *
  * @mixin \Eloquent
  */
 class Project extends Model
 {
     use HasFactory;
+
     public function tasks(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Task::class);
     }
+
     public function createdBy(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -52,5 +56,33 @@ class Project extends Model
     public function updatedBy(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /**
+     * Filters the query by the given name.
+     *
+     * @param  Builder  $query  The query builder instance.
+     * @param  string|null  $name  The name to filter by.
+     * @return Builder The modified query builder instance.
+     */
+    public function scopeOfNameFilter(Builder $query, ?string $name): Builder
+    {
+        return $query->where('name', 'like', '%'.$name.'%');
+    }
+
+    /**
+     * Filters the query by the given status.
+     *
+     * @param  Builder  $query  The query builder instance.
+     * @param  string|null  $status  The status to filter by.
+     * @return Builder The modified query builder instance.
+     */
+    public function scopeOfStatusFilter(Builder $query, ?string $status): Builder
+    {
+        if (ProjectStatus::tryfrom($status)) {
+            return $query->where('status', $status);
+        }
+
+        return $query;
     }
 }

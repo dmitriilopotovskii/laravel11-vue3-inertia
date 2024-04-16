@@ -17,10 +17,10 @@ class ProjectData extends Data
 
         public readonly ?int $id,
         public readonly string $name,
-        public readonly Lazy|string|null $description,
-        public readonly Lazy|Carbon|null $due_date,
-        public readonly Lazy|Carbon|null $created_at,
-        public readonly Lazy|int $status,
+        public readonly Lazy|string $description,
+        public readonly Lazy|string $due_date,
+        public readonly Lazy|string $created_at,
+        public readonly Lazy|string $status,
         public readonly Lazy|string|null $image_path,
         public readonly ?UserData $created_by,
         public readonly ?UserData $updated_by

@@ -42,7 +42,7 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function user(): \Database\Factories\UserFactory
 {
-    // ..
+    return new \Database\Factories\UserFactory();
 }
