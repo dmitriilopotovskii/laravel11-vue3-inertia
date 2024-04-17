@@ -9,6 +9,7 @@ import {
 import TextInput from '@/Components/TextInput.vue'
 import { ref } from 'vue'
 import SelectInput from '@/Components/SelectInput.vue'
+import TableHeading from '@/Components/TableHeading.vue'
 
 const props = defineProps({
     projects: Object,
@@ -33,7 +34,7 @@ const sortChanged = (name) => {
         props.queryParams.sort_field = name
         props.queryParams.sort_direction = 'asc'
     }
-    router.get(route('project.index'), props.queryParams)
+    router.get(route('projects.index'), props.queryParams)
 }
 const searchFieldChanged = function (name, value) {
     if (value) {
@@ -73,16 +74,60 @@ const searchFieldChanged = function (name, value) {
                 class="border-b-2 border-gray-500 bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
             >
                 <tr class="text-nowrap">
-                    <!--                <TableHeading
-            :name="id"
-            :sort_field=queryParams.sort_field
-            :sort_direction=queryParams.sort_direction
-            :sortChanged=sortChanged
-        >
-            ID
-        </TableHeading>-->
-                    <th class="px-3 py-3">ID</th>
-                    <th class="px-3 py-3">Image</th>
+                    <TableHeading
+                        name="id"
+                        :sort_field="queryParams.sort_field"
+                        :sort_direction="queryParams.sort_direction"
+                        @sort-changed="sortChanged"
+                    >
+                        ID
+                    </TableHeading>
+                    <TableHeading :sortable="false"> Image</TableHeading>
+                    <TableHeading
+                        name="name"
+                        :sort_field="queryParams.sort_field"
+                        :sort_direction="queryParams.sort_direction"
+                        @sort-changed="sortChanged"
+                    >
+                        Name
+                    </TableHeading>
+
+                    <TableHeading
+                        name="status"
+                        :sort_field="queryParams.sort_field"
+                        :sort_direction="queryParams.sort_direction"
+                        @sort-changed="sortChanged"
+                    >
+                        Status
+                    </TableHeading>
+
+                    <TableHeading
+                        name="created_at"
+                        :sort_field="queryParams.sort_field"
+                        :sort_direction="queryParams.sort_direction"
+                        @sort-changed="sortChanged"
+                    >
+                        Create Date
+                    </TableHeading>
+
+                    <TableHeading
+                        name="due_date"
+                        :sort_field="queryParams.sort_field"
+                        :sort_direction="queryParams.sort_direction"
+                        @sort-changed="sortChanged"
+                    >
+                        Due Date
+                    </TableHeading>
+                    <TableHeading :sortable="false">Created By</TableHeading>
+                    <TableHeading :sortable="false">Actions</TableHeading>
+                </tr>
+            </thead>
+            <thead
+                class="border-b-2 border-gray-500 bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+            >
+                <tr class="text-nowrap">
+                    <th class="px-3 py-3"></th>
+                    <th class="px-3 py-3"></th>
                     <th class="px-3 py-3">
                         <TextInput
                             placeholder="Project name"
@@ -103,10 +148,10 @@ const searchFieldChanged = function (name, value) {
                             <option value="completed">Completed</option>
                         </SelectInput>
                     </th>
-                    <th class="px-3 py-3">Created date</th>
-                    <th class="px-3 py-3">Due date</th>
-                    <th class="px-3 py-3">Created by</th>
-                    <th class="px-3 py-3">Actions</th>
+                    <th class="px-3 py-3"></th>
+                    <th class="px-3 py-3"></th>
+                    <th class="px-3 py-3"></th>
+                    <th class="px-3 py-3"></th>
                 </tr>
             </thead>
 

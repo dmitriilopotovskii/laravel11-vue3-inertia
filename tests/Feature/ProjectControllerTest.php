@@ -15,7 +15,7 @@ test('Not authenticated users can not see projects /projects', function () {
 
     $response->assertStatus(302);
 });
-test('response contains 10 project data items, with the first project having an ID of 1 and not having "updated_by" and "created_by.email" properties',
+test('response contains 12 project data items, with the first project having an ID of 1 and not having "updated_by" and "created_by.email" properties',
     function () {
         $user = user()->create();
         Project::factory()
