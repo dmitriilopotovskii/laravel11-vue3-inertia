@@ -3,10 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Data\ProjectData;
+use App\Http\Resources\ProjectResource;
+use App\Http\Resources\TaskResource;
 use App\Models\Project;
+use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Spatie\LaravelData\PaginatedDataCollection;
+use Storage;
 
 class ProjectController extends Controller
 {
@@ -15,23 +21,17 @@ class ProjectController extends Controller
      */
     public function index()
     {
-
-        // Initialize the query builder with the Project model and  apply filters
-        $query = Project::OfNameFilter(request('name'))->OfStatusFilter(request('status'));
-
-        // Get the sort field from the request, default to 'created_at'
-        $sortField = request('sort_field', 'created_at');
-
-        // Get the sort direction from the request, default to 'desc'
-        $sortDirection = request('sort_direction', 'desc');
+        // Initialize the query builder with the Project model and  apply filters from request
+        $query = Project::OfNameFilter(request('name'))
+            ->OfStatusFilter(request('status'))
+            ->OfSortingFilter(request('sort_direction'), request('sort_field'));
 
         // Retrieve paginated projects based on query, sorting, and pagination
-        $projects = $query->orderBy($sortField, $sortDirection)
-            ->paginate(10);
-
+        $projects = $query->
+        paginate(10);
         // Transform and format the project data
         $projectsData = ProjectData::collect($projects, PaginatedDataCollection::class)
-            ->except('updated_by', 'created_by.email');
+            ->except('updated_by', 'created_by.email', 'tasks');
 
         // Render the project index view using Inertia with the formatted project data
         return Inertia::render('Project/Index', [
@@ -45,46 +45,117 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        //
+        return inertia('Project/Create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
+    /**
+     * Store a newly created project in the database.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
-        //
+
+        // Extract project data from the request
+        $data = ProjectData::from($request);
+
+        // Create a new project instance
+        $project = new Project();
+
+        // Assign values to the project attributes
+        $project->name = $data->name;
+        $project->description = $data->description;
+        $project->due_date = $data->due_date;
+        $project->status = $data->status;
+
+        // Store the project image if provided
+        $project->image_path = $request->hasFile('image_path') ? $request->file('image_path')->store('project/'.Str::random(),
+            'public') : null;
+
+        // Set the created_by and updated_by values
+        $project->created_by = Auth::id();
+        $project->updated_by = Auth::id();
+
+        // Save the project to the database
+        $project->save();
+
+        // Redirect to the projects index page with a success message
+        return to_route('projects.index')
+            ->with('success', 'Project was created');
     }
 
     /**
      * Display the specified resource.
+     *
+     * @return \Inertia\Response
      */
-    public function show(Project $project)
-    {
-        //
+    public function show(
+        Project $project
+    ) {
+        // Retrieve the project with the specified id
+        $project = Project::query()
+            ->select([
+                'id', 'name', 'created_at', 'created_by',
+                'updated_by', 'status', 'image_path',
+            ])
+            ->where('id', $project->id)
+            ->first();
+
+        // Retrieve and filter the tasks associated with the project
+        $tasks = Task::OfNameFilter(request('name'))
+            ->OfStatusFilter(request('status'))
+            ->OfSortingFilter(request('sort_direction'),
+                request('sort_field'))
+            ->where('project_id', $project->id)
+            ->get();
+
+        // Convert the project and tasks to resources
+        $projectResource = new ProjectResource($project);
+        $tasksResource = TaskResource::collection($tasks);
+
+        // Render the view using Inertia
+        return Inertia::render('Project/Show', [
+            'project' => $projectResource,
+            'tasks' => $tasksResource,
+            'queryParams' => request()->query() ?: ['name' => ''],
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Project $project)
-    {
+    public function edit(
+        Project $project
+    ) {
         //
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Project $project)
-    {
+    public function update(
+        Request $request,
+        Project $project
+    ) {
         //
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Project $project)
-    {
-        //
+    public function destroy(
+        Project $project
+    ) {
+        $name = $project->name;
+        $project->delete();
+        if ($project->image_path) {
+            Storage::disk('public')->deleteDirectory(dirname($project->image_path));
+        }
+
+        return to_route('projects.index')
+            ->with('success', "Project \"$name\" was deleted");
     }
 }

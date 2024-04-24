@@ -20,7 +20,6 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read int|null $tasks_count
  *
  * @method static \Database\Factories\ProjectFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Project newModelQuery()
@@ -84,5 +83,23 @@ class Project extends Model
         }
 
         return $query;
+    }
+
+    /**
+     * Filters the query by the given sorting criteria.
+     *
+     * @param  Builder  $query  The query builder instance.
+     * @param  string|null  $sortDirection  The direction of sorting. Defaults to 'desc'.
+     * @param  string|null  $sortField  The field to sort by. Defaults to 'created_at'.
+     * @return Builder The modified query builder instance.
+     */
+    public function scopeOfSortingFilter(
+        Builder $query,
+        ?string $sortDirection = 'desc',
+        ?string $sortField = 'created_at'
+    ): Builder {
+        //dd($sortField, $sortDirection);
+
+        return ($sortField || $sortDirection) ? $query->orderBy($sortField, $sortDirection) : $query;
     }
 }

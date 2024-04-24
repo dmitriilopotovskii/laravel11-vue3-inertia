@@ -45,6 +45,12 @@ const searchFieldChanged = function (name, value) {
 
     router.get(route('projects.index'), props.queryParams)
 }
+const deleteProject = (project) => {
+    if (!window.confirm('Are you sure you want to delete the project?')) {
+        return
+    }
+    router.delete(route('projects.destroy', project.id))
+}
 </script>
 
 <template>
@@ -63,10 +69,6 @@ const searchFieldChanged = function (name, value) {
                 Add new
             </Link>
         </template>
-
-        <!--        <li v-for="project in projects" :key="project.id">
-                    {{ project.name }}
-                </li>-->
         <table
             class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
         >
@@ -206,12 +208,12 @@ const searchFieldChanged = function (name, value) {
                         >
                             Edit
                         </Link>
-                        <Link
-                            :href="route('projects.destroy', project.id)"
+                        <button
+                            @click="deleteProject(project)"
                             class="mx-1 font-medium text-red-600 hover:underline dark:text-red-500"
                         >
                             Delete
-                        </Link>
+                        </button>
                     </td>
                 </tr>
             </tbody>

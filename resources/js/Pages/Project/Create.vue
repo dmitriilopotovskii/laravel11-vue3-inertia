@@ -1,0 +1,164 @@
+<script setup>
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import InputLabel from '@/Components/InputLabel.vue'
+import InputError from '@/Components/InputError.vue'
+import SelectInput from '@/Components/SelectInput.vue'
+import { Link, useForm } from '@inertiajs/vue3'
+import TextInput from '@/Components/TextInput.vue'
+import TextAreaInput from '@/Components/TextAreaInput.vue'
+
+const form = useForm({
+    image_path: '',
+    name: '',
+    status: '',
+    description: '',
+    due_date: '',
+})
+
+function submit() {
+    form.post(route('projects.store'))
+}
+</script>
+
+<template>
+    <AuthenticatedLayout>
+        <template #header>
+            <div class="flex items-center justify-between">
+                <h2
+                    class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200"
+                >
+                    Create new Project
+                </h2>
+            </div>
+        </template>
+        <Head title="Projects" />
+
+        <div class="py-12">
+            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <div
+                    class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800"
+                >
+                    <form
+                        @submit.prevent="submit"
+                        class="bg-white p-4 shadow sm:rounded-lg sm:p-8 dark:bg-gray-800"
+                    >
+                        <div>
+                            <InputLabel
+                                htmlFor="project_image_path"
+                                value="Project Image"
+                            />
+
+                            <input
+                                type="file"
+                                @input="
+                                    form.image_path = $event.target.files[0]
+                                "
+                            />
+
+                            <InputError
+                                :message="form.errors.image_path"
+                                class="mt-2"
+                            />
+                        </div>
+                        <div class="mt-4">
+                            <InputLabel
+                                htmlFor="project_name"
+                                value="Project Name"
+                            />
+
+                            <TextInput
+                                id="project_name"
+                                type="text"
+                                name="name"
+                                v-model="form.name"
+                                class="mt-1 block w-full"
+                                isFocused="true"
+                            />
+
+                            <InputError
+                                :message="form.errors.name"
+                                class="mt-2"
+                            />
+                        </div>
+                        <div class="mt-4">
+                            <InputLabel
+                                htmlFor="project_description"
+                                value="Project Description"
+                            />
+
+                            <TextAreaInput
+                                id="project_description"
+                                name="description"
+                                v-model="form.description"
+                                class="mt-1 block w-full"
+                            />
+
+                            <InputError
+                                :message="form.errors.description"
+                                class="mt-2"
+                            />
+                        </div>
+                        <div class="mt-4">
+                            <InputLabel
+                                htmlFor="project_due_date"
+                                value="Project Deadline"
+                            />
+
+                            <TextInput
+                                v-model="form.due_date"
+                                type="date"
+                                name="due_date"
+                                class="mt-1 block w-full"
+                            />
+
+                            <InputError
+                                :message="form.errors.due_date"
+                                class="mt-2"
+                            />
+                        </div>
+                        <div class="mt-4">
+                            <InputLabel
+                                htmlFor="project_status"
+                                value="Project Status"
+                            />
+
+                            <SelectInput v-model="form.status">
+                                <option value="">Select Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                            </SelectInput>
+
+                            <InputError
+                                :message="form.errors.status"
+                                class="mt-2"
+                            />
+                        </div>
+                        <progress
+                            v-if="form.progress"
+                            :value="form.progress.percentage"
+                            max="100"
+                        >
+                            {{ form.progress.percentage }}%
+                        </progress>
+                        <div class="mt-4 text-right">
+                            <Link
+                                :href="route('projects.create')"
+                                class="mr-2 rounded bg-gray-100 px-3 py-1 text-gray-800 shadow transition-all hover:bg-gray-200"
+                            >
+                                Cancel
+                            </Link>
+
+                            <button
+                                type="submit"
+                                class="rounded bg-emerald-500 px-3 py-1 text-white shadow transition-all hover:bg-emerald-600"
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </AuthenticatedLayout>
+</template>
