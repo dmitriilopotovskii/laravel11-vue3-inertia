@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Project;
+use Illuminate\Http\UploadedFile;
 use Inertia\Testing\AssertableInertia as Assert;
 
 it('Authenticated users can see projects /projects', function () {
@@ -44,5 +45,26 @@ test('update', function () {
 });
 test('edit', function () {
 });
-test('store', function () {
+
+it('Authenticated users can store projects', function () {
+    $user = user()->create();
+    test()
+        ->actingAs($user)
+        ->post('/projects', [
+            'name' => 'Test Project',
+            'description' => 'Test Project Description',
+            'due_date' => '2022-12-31',
+            'status' => 'in_progress',
+            'image' => UploadedFile::fake()->image('project.png'),
+        ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $project = Project::where('name', 'Test Project')->first();
+    expect($project)->toBeInstanceOf(Project::class)
+        ->and($project->name)->toBe('Test Project')
+        ->and($project->description)->toBe('Test Project Description')
+        ->and($project->due_date)->toBe('2022-12-31')
+        ->and($project->status)->toBe('in_progress')
+        ->and($project->image_path)->not()->toBeNull();
 });

@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Scopes\SortingFilterScope;
+use App\Models\Scopes\StringColumnFilterScope;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
@@ -11,7 +15,20 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        $users = User::query()
+            ->filter(
+                new StringColumnFilterScope(request('name'), 'name'),
+                new StringColumnFilterScope(request('email'), 'email'),
+                new SortingFilterScope(request('sort_field'), request('sort_direction'))
+            )
+            ->paginate(10);
+
+        return Inertia::render('User/Index', [
+            'users' => $users,
+            'queryParams' => request()->query() ?: ['name' => ''],
+            'success' => session('success'),
+        ]);
+
     }
 
     /**

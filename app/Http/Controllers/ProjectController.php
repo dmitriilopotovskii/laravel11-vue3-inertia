@@ -1,16 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Data\ProjectData;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\TaskResource;
 use App\Models\Project;
+use App\Models\Scopes\SortingFilterScope;
+use App\Models\Scopes\StatusFilterScope;
+use App\Models\Scopes\StringColumnFilterScope;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Inertia\Response;
 use Spatie\LaravelData\PaginatedDataCollection;
 use Storage;
 
@@ -22,12 +28,15 @@ class ProjectController extends Controller
     public function index()
     {
         // Initialize the query builder with the Project model and  apply filters from request
-        $query = Project::OfNameFilter(request('name'))
-            ->OfStatusFilter(request('status'))
-            ->OfSortingFilter(request('sort_direction'), request('sort_field'));
+        $query = Project::query()
+            ->filter(
+                new StringColumnFilterScope(request('name'), 'name'),
+                new StatusFilterScope(request('status')),
+                new SortingFilterScope(request('sort_field'), request('sort_direction'))
+            );
 
         // Retrieve paginated projects based on query, sorting, and pagination
-        $projects = $query->
+        $projects = $query->with('createdBy')->
         paginate(10);
         // Transform and format the project data
         $projectsData = ProjectData::collect($projects, PaginatedDataCollection::class)
@@ -37,6 +46,7 @@ class ProjectController extends Controller
         return Inertia::render('Project/Index', [
             'projects' => $projectsData,
             'queryParams' => request()->query() ?: ['name' => ''],
+            'success' => session('success'),
         ]);
     }
 
@@ -58,7 +68,6 @@ class ProjectController extends Controller
      */
     public function store(Request $request)
     {
-
         // Extract project data from the request
         $data = ProjectData::from($request);
 
@@ -72,7 +81,7 @@ class ProjectController extends Controller
         $project->status = $data->status;
 
         // Store the project image if provided
-        $project->image_path = $request->hasFile('image_path') ? $request->file('image_path')->store('project/'.Str::random(),
+        $project->image_path = $request->hasFile('image') ? $request->file('image')->store('project/'.Str::random(),
             'public') : null;
 
         // Set the created_by and updated_by values
@@ -90,7 +99,7 @@ class ProjectController extends Controller
     /**
      * Display the specified resource.
      *
-     * @return \Inertia\Response
+     * @return Response
      */
     public function show(
         Project $project
@@ -127,10 +136,11 @@ class ProjectController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(
-        Project $project
-    ) {
-        //
+    public function edit(Project $project)
+    {
+        return inertia('Project/Edit', [
+            'project' => ProjectData::from($project)->except('updated_by', 'created_by', 'tasks'),
+        ]);
     }
 
     /**
@@ -140,7 +150,28 @@ class ProjectController extends Controller
         Request $request,
         Project $project
     ) {
-        //
+        // Extract and validate project data from the request
+        $data = ProjectData::from($request);
+        // Assign values to the project attributes
+        $project->name = $data->name;
+        $project->description = $data->description;
+        $project->due_date = $data->due_date;
+        $project->status = $data->status;
+        if ($request->hasFile('image')) {
+            if ($project->image_path) {
+                Storage::disk('public')->deleteDirectory(dirname($project->image_path));
+            }
+            $project->image_path = $request->file('image')->store('project/'.Str::random(),
+                'public');
+        }
+
+        // Set the updated_by values
+        $project->updated_by = Auth::id();
+        // Save the project to the database
+        $project->save();
+
+        return to_route('projects.index')
+            ->with('success', "Project \"$project->name\" was updated");
     }
 
     /**

@@ -2,17 +2,13 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import Pagination from '@/Components/Pagination/Pagination.vue'
-import {
-    PROJECT_STATUS_CLASS_MAP,
-    PROJECT_STATUS_TEXT_MAP,
-} from '@/constants.js'
 import TextInput from '@/Components/TextInput.vue'
 import { ref } from 'vue'
 import SelectInput from '@/Components/SelectInput.vue'
 import TableHeading from '@/Components/TableHeading.vue'
 
 const props = defineProps({
-    projects: Object,
+    users: Object,
     queryParams: {
         type: Object,
         default: {},
@@ -21,9 +17,9 @@ const props = defineProps({
 })
 
 const name = ref()
-const status = ref()
+const email = ref()
 name.value = props.queryParams.name
-status.value = props.queryParams.status
+email.value = props.queryParams.email
 const sortChanged = (name) => {
     if (name === props.queryParams.sort_field) {
         if (props.queryParams.sort_direction === 'asc') {
@@ -35,7 +31,7 @@ const sortChanged = (name) => {
         props.queryParams.sort_field = name
         props.queryParams.sort_direction = 'asc'
     }
-    router.get(route('projects.index'), props.queryParams)
+    router.get(route('users.index'), props.queryParams)
 }
 const searchFieldChanged = function (name, value) {
     if (value) {
@@ -44,33 +40,33 @@ const searchFieldChanged = function (name, value) {
         delete props.queryParams[name]
     }
 
-    router.get(route('projects.index'), props.queryParams)
+    router.get(route('users.index'), props.queryParams)
 }
-const deleteProject = (project) => {
-    if (!window.confirm('Are you sure you want to delete the project?')) {
+const deleteUser = (user) => {
+    if (!window.confirm('Are you sure you want to delete the user?')) {
         return
     }
-    router.delete(route('projects.destroy', project.id))
+    router.delete(route('users.destroy', user.id))
 }
 </script>
 
 <template>
-    <Head title="Projects" />
+    <Head title="Users" />
     <AuthenticatedLayout>
         <template #header>
             <h2
                 class="flex text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200"
             >
-                Projects
+                Users
             </h2>
             <Link
-                :href="route('projects.create')"
+                :href="route('users.create')"
                 class="rounded bg-emerald-500 px-3 py-1 text-white shadow transition-all hover:bg-emerald-600"
             >
                 Add new
             </Link>
         </template>
-        <Head title="Projects" />
+        <Head title="Users" />
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div
@@ -102,9 +98,7 @@ const deleteProject = (project) => {
                                         >
                                             ID
                                         </TableHeading>
-                                        <TableHeading :sortable="false">
-                                            Image</TableHeading
-                                        >
+
                                         <TableHeading
                                             name="name"
                                             :sort_field="queryParams.sort_field"
@@ -115,16 +109,15 @@ const deleteProject = (project) => {
                                         >
                                             Name
                                         </TableHeading>
-
                                         <TableHeading
-                                            name="status"
+                                            name="email"
                                             :sort_field="queryParams.sort_field"
                                             :sort_direction="
                                                 queryParams.sort_direction
                                             "
                                             @sort-changed="sortChanged"
                                         >
-                                            Status
+                                            Email
                                         </TableHeading>
 
                                         <TableHeading
@@ -138,22 +131,9 @@ const deleteProject = (project) => {
                                             Create Date
                                         </TableHeading>
 
-                                        <TableHeading
-                                            name="due_date"
-                                            :sort_field="queryParams.sort_field"
-                                            :sort_direction="
-                                                queryParams.sort_direction
-                                            "
-                                            @sort-changed="sortChanged"
-                                        >
-                                            Due Date
+                                        <TableHeading :sortable="false"
+                                            >Actions
                                         </TableHeading>
-                                        <TableHeading :sortable="false"
-                                            >Created By</TableHeading
-                                        >
-                                        <TableHeading :sortable="false"
-                                            >Actions</TableHeading
-                                        >
                                     </tr>
                                 </thead>
                                 <thead
@@ -161,10 +141,9 @@ const deleteProject = (project) => {
                                 >
                                     <tr class="text-nowrap">
                                         <th class="px-3 py-3"></th>
-                                        <th class="px-3 py-3"></th>
                                         <th class="px-3 py-3">
                                             <TextInput
-                                                placeholder="Project name"
+                                                placeholder="User name"
                                                 v-model="name"
                                                 class="mt-1 block w-full"
                                                 @change="
@@ -175,33 +154,20 @@ const deleteProject = (project) => {
                                                 "
                                             />
                                         </th>
+
                                         <th class="px-3 py-3">
-                                            <SelectInput
-                                                v-model="status"
+                                            <TextInput
+                                                placeholder="User email"
+                                                v-model="email"
                                                 class="mt-1 block w-full"
                                                 @change="
                                                     searchFieldChanged(
-                                                        'status',
-                                                        status
+                                                        'email',
+                                                        email
                                                     )
                                                 "
-                                            >
-                                                <option value="" selected>
-                                                    Select Status
-                                                </option>
-                                                <option value="pending">
-                                                    Pending
-                                                </option>
-                                                <option value="in_progress">
-                                                    In Progress
-                                                </option>
-                                                <option value="completed">
-                                                    Completed
-                                                </option>
-                                            </SelectInput>
+                                            />
                                         </th>
-                                        <th class="px-3 py-3"></th>
-                                        <th class="px-3 py-3"></th>
                                         <th class="px-3 py-3"></th>
                                         <th class="px-3 py-3"></th>
                                     </tr>
@@ -209,77 +175,45 @@ const deleteProject = (project) => {
 
                                 <tbody>
                                     <tr
-                                        v-for="project in projects.data"
-                                        :key="project.id"
+                                        v-for="user in users.data"
+                                        :key="user.id"
                                         class="border-b bg-white dark:border-gray-700 dark:bg-gray-800"
                                     >
                                         <td class="px-3 py-2">
-                                            {{ project.id }}
+                                            {{ user.id }}
                                         </td>
-                                        <td class="px-3 py-2">
-                                            <img
-                                                :src="project.image_path"
-                                                class="w-10"
-                                                :alt="project.name"
-                                            />
-                                        </td>
+
                                         <th
                                             class="text-nowrap px-3 py-2 text-gray-100 hover:underline"
                                         >
                                             <Link
                                                 :href="
-                                                    route(
-                                                        'projects.show',
-                                                        project.id
-                                                    )
+                                                    route('users.show', user.id)
                                                 "
                                             >
-                                                {{ project.name }}
+                                                {{ user.name }}
                                             </Link>
                                         </th>
+
                                         <td class="px-3 py-2">
-                                            <span
-                                                :class="[
-                                                    PROJECT_STATUS_CLASS_MAP[
-                                                        project.status
-                                                    ],
-                                                    'px-2',
-                                                    'py-1',
-                                                    'rounded',
-                                                    'text-white',
-                                                ]"
-                                            >
-                                                {{
-                                                    PROJECT_STATUS_TEXT_MAP[
-                                                        project.status
-                                                    ]
-                                                }}
-                                            </span>
+                                            {{ user.email }}
                                         </td>
+
                                         <td class="px-3 py-2">
-                                            {{ project.created_at }}
-                                        </td>
-                                        <td class="text-nowrap px-3 py-2">
-                                            {{ project.due_date }}
-                                        </td>
-                                        <td class="text-nowrap px-3 py-2">
-                                            {{ project.created_by.name }}
+                                            {{ user.created_at }}
                                         </td>
 
                                         <td class="text-nowrap px-3 py-2">
                                             <Link
                                                 :href="
-                                                    route(
-                                                        'projects.edit',
-                                                        project.id
-                                                    )
+                                                    route('users.edit', user.id)
                                                 "
                                                 class="mx-1 font-medium text-blue-600 hover:underline dark:text-blue-500"
                                             >
                                                 Edit
                                             </Link>
                                             <button
-                                                @click="deleteProject(project)"
+                                                @click="deleteUser(user)"
                                                 class="mx-1 font-medium text-red-600 hover:underline dark:text-red-500"
                                             >
                                                 Delete
@@ -294,6 +228,6 @@ const deleteProject = (project) => {
             </div>
         </div>
 
-        <Pagination :links="projects.links" />
+        <Pagination :links="users.links" />
     </AuthenticatedLayout>
 </template>

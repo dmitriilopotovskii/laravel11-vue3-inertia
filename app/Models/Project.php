@@ -1,9 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use App\Enums\ProjectStatus;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -12,7 +12,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property string $name
  * @property string|null $description
- * @property Carbon|null $due_date
+ * @property Carbon|null| string $due_date
  * @property string $status
  * @property string|null $image_path
  * @property int $created_by
@@ -55,51 +55,5 @@ class Project extends Model
     public function updatedBy(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
-    }
-
-    /**
-     * Filters the query by the given name.
-     *
-     * @param  Builder  $query  The query builder instance.
-     * @param  string|null  $name  The name to filter by.
-     * @return Builder The modified query builder instance.
-     */
-    public function scopeOfNameFilter(Builder $query, ?string $name): Builder
-    {
-        return $query->where('name', 'like', '%'.$name.'%');
-    }
-
-    /**
-     * Filters the query by the given status.
-     *
-     * @param  Builder  $query  The query builder instance.
-     * @param  string|null  $status  The status to filter by.
-     * @return Builder The modified query builder instance.
-     */
-    public function scopeOfStatusFilter(Builder $query, ?string $status): Builder
-    {
-        if (ProjectStatus::tryfrom($status)) {
-            return $query->where('status', $status);
-        }
-
-        return $query;
-    }
-
-    /**
-     * Filters the query by the given sorting criteria.
-     *
-     * @param  Builder  $query  The query builder instance.
-     * @param  string|null  $sortDirection  The direction of sorting. Defaults to 'desc'.
-     * @param  string|null  $sortField  The field to sort by. Defaults to 'created_at'.
-     * @return Builder The modified query builder instance.
-     */
-    public function scopeOfSortingFilter(
-        Builder $query,
-        ?string $sortDirection = 'desc',
-        ?string $sortField = 'created_at'
-    ): Builder {
-        //dd($sortField, $sortDirection);
-
-        return ($sortField || $sortDirection) ? $query->orderBy($sortField, $sortDirection) : $query;
     }
 }

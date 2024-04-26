@@ -7,16 +7,21 @@ import { Link, useForm } from '@inertiajs/vue3'
 import TextInput from '@/Components/TextInput.vue'
 import TextAreaInput from '@/Components/TextAreaInput.vue'
 
+const props = defineProps({
+    project: Object,
+})
 const form = useForm({
+    image_path: props.project.image_path,
     image: '',
-    name: '',
-    status: '',
-    description: '',
-    due_date: '',
+    name: props.project.name,
+    status: props.project.status,
+    description: props.project.description,
+    due_date: props.project.due_date,
+    _method: 'PUT',
 })
 
 function submit() {
-    form.post(route('projects.store'))
+    form.post(route('projects.update', props.project.id))
 }
 </script>
 
@@ -31,7 +36,7 @@ function submit() {
                 </h2>
             </div>
         </template>
-        <Head title="Projects"><title>Projects</title></Head>
+        <Head title="Projects" />
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -44,7 +49,7 @@ function submit() {
                     >
                         <div>
                             <InputLabel
-                                htmlFor="project_image_path"
+                                htmlFor="project_image"
                                 value="Project Image"
                             />
 

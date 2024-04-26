@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Data;
 
 use App\Enums\ProjectStatus;
@@ -32,7 +34,8 @@ class ProjectData extends Data
         #[Enum(ProjectStatus::class)]
         public readonly Lazy|string $status,
         #[Image]
-        public readonly Lazy|UploadedFile|null $image_path,
+        public readonly Lazy|UploadedFile|null $image,
+        public readonly Lazy|string|null $image_path,
         public readonly Lazy|UserData|null $created_by,
         public readonly Lazy|UserData|null $updated_by,
         #[DataCollectionOf(TaskData::class)]
@@ -49,9 +52,10 @@ class ProjectData extends Data
             Lazy::inertia(fn () => (new Carbon($project->due_date))->format('Y-m-d')),
             Lazy::inertia(fn () => $project->created_at->format('Y-m-d')),
             Lazy::inertia(fn () => $project->status),
+            Lazy::inertia(fn () => $project->image = null),
             Lazy::inertia(fn () => $project->image_path && ! (str_starts_with($project->image_path, 'http')) ?
                 Storage::url($project->image_path) : $project->image_path),
-            Lazy::inertia(fn () => UserData::from($project->createdBy()->first())),
+            Lazy::inertia(fn () => UserData::from($project->createdBy()->first())->except('email')),
             Lazy::inertia(fn () => UserData::from($project->updatedBy()->first())),
             Lazy::inertia(fn () => TaskData::collect($project->tasks, DataCollection::class)->except('project')),
 

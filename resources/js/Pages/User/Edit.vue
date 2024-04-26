@@ -7,16 +7,21 @@ import { Link, useForm } from '@inertiajs/vue3'
 import TextInput from '@/Components/TextInput.vue'
 import TextAreaInput from '@/Components/TextAreaInput.vue'
 
+const props = defineProps({
+    user: Object,
+})
 const form = useForm({
+    image_path: props.user.image_path,
     image: '',
-    name: '',
-    status: '',
-    description: '',
-    due_date: '',
+    name: props.user.name,
+    status: props.user.status,
+    description: props.user.description,
+    due_date: props.user.due_date,
+    _method: 'PUT',
 })
 
 function submit() {
-    form.post(route('projects.store'))
+    form.post(route('users.update', props.user.id))
 }
 </script>
 
@@ -27,11 +32,11 @@ function submit() {
                 <h2
                     class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200"
                 >
-                    Create new Project
+                    Create new User
                 </h2>
             </div>
         </template>
-        <Head title="Projects"><title>Projects</title></Head>
+        <Head title="Users" />
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -44,8 +49,8 @@ function submit() {
                     >
                         <div>
                             <InputLabel
-                                htmlFor="project_image_path"
-                                value="Project Image"
+                                htmlFor="user_image"
+                                value="User Image"
                             />
 
                             <input
@@ -59,13 +64,10 @@ function submit() {
                             />
                         </div>
                         <div class="mt-4">
-                            <InputLabel
-                                htmlFor="project_name"
-                                value="Project Name"
-                            />
+                            <InputLabel htmlFor="user_name" value="User Name" />
 
                             <TextInput
-                                id="project_name"
+                                id="user_name"
                                 type="text"
                                 name="name"
                                 v-model="form.name"
@@ -80,12 +82,12 @@ function submit() {
                         </div>
                         <div class="mt-4">
                             <InputLabel
-                                htmlFor="project_description"
-                                value="Project Description"
+                                htmlFor="user_description"
+                                value="User Description"
                             />
 
                             <TextAreaInput
-                                id="project_description"
+                                id="user_description"
                                 name="description"
                                 v-model="form.description"
                                 class="mt-1 block w-full"
@@ -98,8 +100,8 @@ function submit() {
                         </div>
                         <div class="mt-4">
                             <InputLabel
-                                htmlFor="project_due_date"
-                                value="Project Deadline"
+                                htmlFor="user_due_date"
+                                value="User Deadline"
                             />
 
                             <TextInput
@@ -116,8 +118,8 @@ function submit() {
                         </div>
                         <div class="mt-4">
                             <InputLabel
-                                htmlFor="project_status"
-                                value="Project Status"
+                                htmlFor="user_status"
+                                value="User Status"
                             />
 
                             <SelectInput v-model="form.status">
@@ -141,7 +143,7 @@ function submit() {
                         </progress>
                         <div class="mt-4 text-right">
                             <Link
-                                :href="route('projects.create')"
+                                :href="route('users.create')"
                                 class="mr-2 rounded bg-gray-100 px-3 py-1 text-gray-800 shadow transition-all hover:bg-gray-200"
                             >
                                 Cancel
