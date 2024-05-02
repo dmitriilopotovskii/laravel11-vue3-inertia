@@ -2,17 +2,14 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import InputLabel from '@/Components/InputLabel.vue'
 import InputError from '@/Components/InputError.vue'
-import SelectInput from '@/Components/SelectInput.vue'
 import { Link, useForm } from '@inertiajs/vue3'
 import TextInput from '@/Components/TextInput.vue'
-import TextAreaInput from '@/Components/TextAreaInput.vue'
 
 const form = useForm({
-    image: '',
     name: '',
-    status: '',
-    description: '',
-    due_date: '',
+    email: '',
+    password: '',
+    password_confirmation: '',
 })
 
 function submit() {
@@ -27,11 +24,11 @@ function submit() {
                 <h2
                     class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200"
                 >
-                    Create new User
+                    Edit User
                 </h2>
             </div>
         </template>
-        <Head title="Users" />
+        <Head title="Users"><title>Users</title></Head>
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -42,22 +39,6 @@ function submit() {
                         @submit.prevent="submit"
                         class="bg-white p-4 shadow sm:rounded-lg sm:p-8 dark:bg-gray-800"
                     >
-                        <div>
-                            <InputLabel
-                                htmlFor="user_image_path"
-                                value="User Image"
-                            />
-
-                            <input
-                                type="file"
-                                @input="form.image = $event.target.files[0]"
-                            />
-
-                            <InputError
-                                :message="form.errors.image"
-                                class="mt-2"
-                            />
-                        </div>
                         <div class="mt-4">
                             <InputLabel htmlFor="user_name" value="User Name" />
 
@@ -77,58 +58,65 @@ function submit() {
                         </div>
                         <div class="mt-4">
                             <InputLabel
-                                htmlFor="user_description"
-                                value="User Description"
-                            />
-
-                            <TextAreaInput
-                                id="user_description"
-                                name="description"
-                                v-model="form.description"
-                                class="mt-1 block w-full"
-                            />
-
-                            <InputError
-                                :message="form.errors.description"
-                                class="mt-2"
-                            />
-                        </div>
-                        <div class="mt-4">
-                            <InputLabel
-                                htmlFor="user_due_date"
-                                value="User Deadline"
+                                htmlFor="user_email"
+                                value="User Email"
                             />
 
                             <TextInput
-                                v-model="form.due_date"
-                                type="date"
-                                name="due_date"
+                                id="user_email"
+                                type="text"
+                                name="email"
+                                v-model="form.email"
+                                class="mt-1 block w-full"
+                                isFocused="true"
+                            />
+
+                            <InputError
+                                :message="form.errors.email"
+                                class="mt-2"
+                            />
+                        </div>
+
+                        <div class="mt-4">
+                            <InputLabel
+                                htmlFor="user_password"
+                                value="Password"
+                            />
+
+                            <TextInput
+                                id="user_password"
+                                type="password"
+                                name="password"
+                                v-model="form.password"
                                 class="mt-1 block w-full"
                             />
 
                             <InputError
-                                :message="form.errors.due_date"
+                                :message="form.errors.password"
                                 class="mt-2"
                             />
                         </div>
+
                         <div class="mt-4">
                             <InputLabel
-                                htmlFor="user_status"
-                                value="User Status"
+                                htmlFor="user_password_confirmation"
+                                value="Confirm Password"
                             />
 
-                            <SelectInput v-model="form.status">
-                                <option value="">Select Status</option>
-                                <option value="pending">Pending</option>
-                                <option value="in_progress">In Progress</option>
-                                <option value="completed">Completed</option>
-                            </SelectInput>
+                            <TextInput
+                                id="user_password_confirmation"
+                                type="password"
+                                name="password_confirmation"
+                                v-model="form.password_confirmation"
+                                class="mt-1 block w-full"
+                            />
 
                             <InputError
-                                :message="form.errors.status"
+                                :message="form.errors.password_confirmation"
                                 class="mt-2"
                             />
                         </div>
+
                         <progress
                             v-if="form.progress"
                             :value="form.progress.percentage"
@@ -148,7 +136,7 @@ function submit() {
                                 type="submit"
                                 class="rounded bg-emerald-500 px-3 py-1 text-white shadow transition-all hover:bg-emerald-600"
                             >
-                                Submit
+                                Create
                             </button>
                         </div>
                     </form>

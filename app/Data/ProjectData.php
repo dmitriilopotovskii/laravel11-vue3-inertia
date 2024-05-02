@@ -50,14 +50,15 @@ class ProjectData extends Data
             $project->name,
             Lazy::inertia(fn () => $project->description),
             Lazy::inertia(fn () => (new Carbon($project->due_date))->format('Y-m-d')),
-            Lazy::inertia(fn () => $project->created_at->format('Y-m-d')),
+            Lazy::inertia(fn () => $project->created_at ? $project->created_at->format('Y-m-d') : null),
             Lazy::inertia(fn () => $project->status),
             Lazy::inertia(fn () => $project->image = null),
             Lazy::inertia(fn () => $project->image_path && ! (str_starts_with($project->image_path, 'http')) ?
                 Storage::url($project->image_path) : $project->image_path),
-            Lazy::inertia(fn () => UserData::from($project->createdBy()->first())->except('email')),
+            Lazy::inertia(fn () => UserData::from($project->createdBy)),
             Lazy::inertia(fn () => UserData::from($project->updatedBy()->first())),
-            Lazy::inertia(fn () => TaskData::collect($project->tasks, DataCollection::class)->except('project')),
+            Lazy::inertia(fn () => $project->tasks ? TaskData::collect($project->tasks,
+                DataCollection::class)->except('project') : null),
 
         );
     }

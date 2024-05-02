@@ -4,7 +4,6 @@ import { Head, Link, router } from '@inertiajs/vue3'
 import Pagination from '@/Components/Pagination/Pagination.vue'
 import TextInput from '@/Components/TextInput.vue'
 import { ref } from 'vue'
-import SelectInput from '@/Components/SelectInput.vue'
 import TableHeading from '@/Components/TableHeading.vue'
 
 const props = defineProps({
@@ -184,15 +183,9 @@ const deleteUser = (user) => {
                                         </td>
 
                                         <th
-                                            class="text-nowrap px-3 py-2 text-gray-100 hover:underline"
+                                            class="text-nowrap px-3 py-2 text-gray-100"
                                         >
-                                            <Link
-                                                :href="
-                                                    route('users.show', user.id)
-                                                "
-                                            >
-                                                {{ user.name }}
-                                            </Link>
+                                            {{ user.name }}
                                         </th>
 
                                         <td class="px-3 py-2">

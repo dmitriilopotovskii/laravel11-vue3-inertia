@@ -5,6 +5,9 @@ namespace App\Providers;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * @method tap($scope)
+ */
 class AppServiceProvider extends ServiceProvider
 {
     /**

@@ -47,7 +47,7 @@ const sortChanged = (name) => {
         props.queryParams.sort_field = name
         props.queryParams.sort_direction = 'asc'
     }
-    router.get(route(props.routeName), props.queryParams)
+    router.get(route(props.routeName, props.routeParams), props.queryParams)
 }
 const searchFieldChanged = function (name, value) {
     if (value) {
@@ -84,9 +84,7 @@ const searchFieldChanged = function (name, value) {
                 >
                     Name
                 </TableHeading>
-                <TableHeading v-if="!hideProjectColumn" name="Project Name">
-                    Project Name
-                </TableHeading>
+                <th v-if="!hideProjectColumn">Project Name</th>
 
                 <TableHeading
                     name="status"

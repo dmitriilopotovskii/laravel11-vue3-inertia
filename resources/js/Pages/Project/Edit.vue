@@ -21,7 +21,7 @@ const form = useForm({
 })
 
 function submit() {
-    form.post(route('projects.update', props.project.id))
+    form.put(route('projects.update', props.project.id))
 }
 </script>
 
@@ -36,7 +36,7 @@ function submit() {
                 </h2>
             </div>
         </template>
-        <Head title="Projects" />
+        <Head title="Projects"><title>Projects</title></Head>
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">

@@ -1,12 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
+use App\Actions\UserActions\UpsertUserAction;
+use App\Data\UserData;
+use App\Data\UserUpsertData;
 use App\Models\Scopes\SortingFilterScope;
 use App\Models\Scopes\StringColumnFilterScope;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Spatie\LaravelData\PaginatedDataCollection;
 
 class UserController extends Controller
 {
@@ -22,13 +27,13 @@ class UserController extends Controller
                 new SortingFilterScope(request('sort_field'), request('sort_direction'))
             )
             ->paginate(10);
+        $userData = UserData::collect($users, PaginatedDataCollection::class);
 
         return Inertia::render('User/Index', [
-            'users' => $users,
+            'users' => $userData,
             'queryParams' => request()->query() ?: ['name' => ''],
             'success' => session('success'),
         ]);
-
     }
 
     /**
@@ -36,15 +41,18 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        return inertia('User/Create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(UserUpsertData $data)
     {
-        //
+        $user = UpsertUserAction::execute($data);
+
+        return to_route('users.index')
+            ->with('success', "User \"$user->name\" was created");
     }
 
     /**
@@ -58,17 +66,22 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(User $user)
     {
-        //
+        return inertia('User/Edit', [
+            'user' => UserData::from($user),
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UserUpsertData $data)
     {
-        //
+        $user = UpsertUserAction::execute($data);
+
+        return to_route('users.index')
+            ->with('success', "User \"$user->name\" was updated");
     }
 
     /**
@@ -76,6 +89,9 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $user = User::findOrFail($id);
+        $user->delete();
+        return to_route('users.index')
+            ->with('success', "User \"$user->name\" was deleted");
     }
 }

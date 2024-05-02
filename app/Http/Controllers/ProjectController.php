@@ -102,32 +102,30 @@ class ProjectController extends Controller
      * @return Response
      */
     public function show(
-        Project $project
+        int $id
     ) {
-        // Retrieve the project with the specified id
-        $project = Project::query()
-            ->select([
-                'id', 'name', 'created_at', 'created_by',
-                'updated_by', 'status', 'image_path',
-            ])
-            ->where('id', $project->id)
+        $project = Project::query()->select(['id', 'name', 'created_by', 'description', 'due_date', 'status', 'image_path', 'updated_by'])
+            ->where('id', $id)
+            ->with('createdBy')
             ->first();
-
         // Retrieve and filter the tasks associated with the project
-        $tasks = Task::OfNameFilter(request('name'))
-            ->OfStatusFilter(request('status'))
-            ->OfSortingFilter(request('sort_direction'),
-                request('sort_field'))
-            ->where('project_id', $project->id)
+        $tasks = Task::query()
+            ->filter(
+                new StringColumnFilterScope(request('name'), 'name'),
+                new StatusFilterScope(request('status')),
+                new SortingFilterScope(request('sort_field'), request('sort_direction'))
+            )
+            ->where('project_id', $id)
             ->get();
 
         // Convert the project and tasks to resources
-        $projectResource = new ProjectResource($project);
+        // $projectResource = new ProjectResource($project);
+        $projectData = ProjectData::from($project)->except('tasks');
         $tasksResource = TaskResource::collection($tasks);
 
         // Render the view using Inertia
         return Inertia::render('Project/Show', [
-            'project' => $projectResource,
+            'project' => $projectData,
             'tasks' => $tasksResource,
             'queryParams' => request()->query() ?: ['name' => ''],
         ]);

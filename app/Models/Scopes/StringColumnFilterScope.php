@@ -4,11 +4,11 @@ namespace App\Models\Scopes;
 
 use Illuminate\Database\Eloquent\Builder;
 
-class StringColumnFilterScope
+readonly class StringColumnFilterScope
 {
     public function __construct(
-        protected readonly ?string $name,
-        protected readonly ?string $column
+        protected ?string $name,
+        protected ?string $column
     ) {
     }
 
