@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Data;
 
-use phpDocumentor\Reflection\Types\This;
 use Spatie\LaravelData\Attributes\Validation\Email;
 use Spatie\LaravelData\Attributes\Validation\Password;
 use Spatie\LaravelData\Attributes\Validation\Required;
@@ -19,7 +18,7 @@ class UserUpsertData extends Data
     public function __construct(
         public readonly ?int $id,
         public readonly string $name,
-        #[Email, Required] #[Unique(table: 'users', column: 'email', ignore: new RouteParameterReference(routeParameter: 'user',nullable: true))]
+        #[Email, Required] #[Unique(table: 'users', column: 'email', ignore: new RouteParameterReference(routeParameter: 'user', nullable: true))]
         public readonly string $email,
         #[StringType, Required, Password(min: 8)]
         public readonly string $password,

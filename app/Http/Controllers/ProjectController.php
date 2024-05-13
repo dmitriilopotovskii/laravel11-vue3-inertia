@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Data\ProjectData;
-use App\Http\Resources\ProjectResource;
 use App\Http\Resources\TaskResource;
 use App\Models\Project;
 use App\Models\Scopes\SortingFilterScope;
@@ -104,7 +103,9 @@ class ProjectController extends Controller
     public function show(
         int $id
     ) {
-        $project = Project::query()->select(['id', 'name', 'created_by', 'description', 'due_date', 'status', 'image_path', 'updated_by'])
+        $project = Project::query()->select([
+            'id', 'name', 'created_by', 'description', 'due_date', 'status', 'image_path', 'updated_by',
+        ])
             ->where('id', $id)
             ->with('createdBy')
             ->first();

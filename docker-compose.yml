@@ -47,6 +47,12 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
+    buggregator:
+        image: ghcr.io/buggregator/server:dev
+        ports:
+            - 8000:8000
+        networks:
+            - sail
 networks:
     sail:
         driver: bridge
