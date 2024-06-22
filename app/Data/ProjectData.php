@@ -45,6 +45,7 @@ class ProjectData extends Data
 
     public static function fromModel(Project $project): self
     {
+
         return new self(
             $project->id,
             $project->name,
@@ -55,10 +56,9 @@ class ProjectData extends Data
             Lazy::inertia(fn () => $project->image = null),
             Lazy::inertia(fn () => $project->image_path && ! (str_starts_with($project->image_path, 'http')) ?
                 Storage::url($project->image_path) : $project->image_path),
-            Lazy::inertia(fn () => UserData::from($project->createdBy)),
-            Lazy::inertia(fn () => UserData::from($project->updatedBy()->first())),
-            Lazy::inertia(fn () => $project->tasks ? TaskData::collect($project->tasks,
-                DataCollection::class)->except('project') : null),
+            Lazy::closure(fn () => UserData::from($project->createdBy)),
+            Lazy::inertia(fn () => $project->updatedBy ? UserData::from($project->updatedBy) : null),
+            Lazy::inertia(fn () => null),
 
         );
     }

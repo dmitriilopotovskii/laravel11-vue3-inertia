@@ -21,6 +21,11 @@ class TaskController extends Controller
         // Initialize the query builder with the Task model and  apply filters
         /// Retrieve paginated tasks based on query, sorting, and pagination
         $tasks = Task::query()
+            ->select([
+                'id', 'name', 'description', 'image_path', 'status', 'priority', 'due_date',
+                'created_by', 'project_id', 'created_at', 'updated_at',
+            ])
+            ->with('createdBy', 'project')
             ->filter(
                 new StringColumnFilterScope(request('name'), 'name'),
                 new StatusFilterScope(request('status')),
@@ -28,8 +33,7 @@ class TaskController extends Controller
             )->paginate(10);
 
         // Transform and format the task data
-        $tasksData = TaskData::collect($tasks, PaginatedDataCollection::class)
-            ->except('updated_by', 'assigned_user');
+        $tasksData = TaskData::collect($tasks, PaginatedDataCollection::class);
 
         // Render the task index view using Inertia with the formatted task data
         return Inertia::render('Task/Index', [
@@ -65,9 +69,18 @@ class TaskController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Task $task)
+    public function edit(int $id)
     {
-        //
+        $task = Task::query()->
+        select([
+            'id', 'name', 'description', 'due_date', 'status', 'priority', 'image_path', 'created_at',
+        ])->where('id', $id)
+            ->first();
+        ray(TaskData::from($task));
+
+        return inertia('Task/Edit', [
+            'task' => TaskData::from($task),
+        ]);
     }
 
     /**
@@ -75,7 +88,7 @@ class TaskController extends Controller
      */
     public function update(Request $request, Task $task)
     {
-        //
+        ray($request->all());
     }
 
     /**

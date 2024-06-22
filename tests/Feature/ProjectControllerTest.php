@@ -29,7 +29,7 @@ test('response contains 12 project data items, with the first project having an 
                 ->component('Project/Index')
                 ->where('projects.meta.total', 12)
                 ->where('projects.data.0.id', 1)
-                ->missingAll('projects.data.0.updated_by', 'projects.data.0.created_by.email')
+                ->missingAll('projects.data.0.updated_by')
                 ->hasAll('projects.data.0.id', 'projects.data.0.name', 'projects.data.0.description',
                     'projects.data.0.due_date', 'projects.data.0.created_at', 'projects.data.0.status',
                     'projects.data.0.image_path')

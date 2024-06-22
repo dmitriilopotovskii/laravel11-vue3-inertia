@@ -35,11 +35,12 @@ class ProjectController extends Controller
             );
 
         // Retrieve paginated projects based on query, sorting, and pagination
-        $projects = $query->with('createdBy')->
+        $projects = $query->with('createdBy', 'updatedBy')->
         paginate(10);
         // Transform and format the project data
         $projectsData = ProjectData::collect($projects, PaginatedDataCollection::class)
-            ->except('updated_by', 'created_by.email', 'tasks');
+            ->include('createdBy')
+            ->except('updated_by', 'tasks');
 
         // Render the project index view using Inertia with the formatted project data
         return Inertia::render('Project/Index', [
